@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Pageable, GatewayResponse, GatewayPopupData, Gateway} from './models';
+import {Pageable, GatewayResponse, GatewayPopupData, Gateway, GatewayDevicesResponse} from './models';
 
 export class GatewayApis {
   href = 'http://localhost:8080/gateways';
@@ -30,5 +30,16 @@ export class GatewayApis {
 
   updateGateWay(gateway: Gateway): Observable<Gateway> {
     return this.httpClient.put<Gateway>(this.href + '/' + gateway.id, gateway);
+  }
+
+  getGatewayDevices(row: Gateway): Observable<GatewayDevicesResponse> {
+    const pageable: Pageable = {
+      pageNumber: 0,
+      pageSize: 10,
+      sort: ''
+    };
+    const requestUrl = `${(this.href + '/' + row.id + '/devices')}?pageSize=${pageable.pageSize}&pageNumber=${pageable.pageNumber}`;
+
+    return this.httpClient.get<GatewayDevicesResponse>(requestUrl);
   }
 }

@@ -3,19 +3,30 @@ import {AfterViewInit, ChangeDetectorRef, Component, ViewChild} from '@angular/c
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {GatewayApis} from '../apis/GatewayApis';
-import {Gateway, GatewayPopupData} from '../apis/models';
+import {Device, Gateway, GatewayPopupData} from '../apis/models';
 import {MatDialog} from '@angular/material/dialog';
 import {GatewayPopupComponent} from './gateway-popup/gateway-popup.component';
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class HomeComponent implements AfterViewInit {
   displayedColumns: string[] = ['serialNumber', 'name', 'ipv4', 'actions'];
+  displayedDetailsColumns: string[] = ['uid', 'vendor', 'created', 'status'];
   gatewayService: GatewayApis | null;
+  expandedElement: Device | null;
+  devices: Device[] = [];
 
   resultsLength = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -87,6 +98,17 @@ export class HomeComponent implements AfterViewInit {
         this.updateTableModel();
       });
     }
+  }
+
+  openDetails(row: Gateway): any {
+    this.gatewayService.getGatewayDevices(row).subscribe(devices => {
+      this.devices = devices.content;
+    });
+    return row;
+  }
+
+  closeDetails(row): string {
+    return null;
   }
 }
 
